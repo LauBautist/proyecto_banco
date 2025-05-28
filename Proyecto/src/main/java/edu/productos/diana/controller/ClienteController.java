@@ -75,7 +75,7 @@ public class ClienteController {
 
 		// Subida de imagen
 		if (!file.isEmpty()) {
-			String rutaDirectorio = System.getProperty("user.dir") + "/imagenesProyecto/";
+			String rutaDirectorio = "/app/imagenesProyecto/";
 			String nombreArchivo = file.getOriginalFilename();
 			File archivoDestino = new File(rutaDirectorio + nombreArchivo);
 
