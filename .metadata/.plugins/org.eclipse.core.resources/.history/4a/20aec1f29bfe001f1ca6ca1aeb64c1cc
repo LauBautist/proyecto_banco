@@ -1,0 +1,118 @@
+package actividad3.diana.salvador.service;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import actividad3.diana.salvador.model.Evento;
+
+@Service
+public class EventoServiceImpl implements EventoService {
+
+    // Lista global de eventos
+    private List<Evento> lista = null;
+
+    public EventoServiceImpl() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+        // Inicializamos la lista
+        lista = new LinkedList<>();
+
+        try {
+            Evento evento1 = new Evento();
+            evento1.setId(1);
+            evento1.setNombre("Conferencia de Tecnología");
+            evento1.setEmail("techconf@gmail.com");
+            evento1.setFechaNacimiento(sdf.parse("15-06-2023"));
+            evento1.setCredito(15000.0);
+            evento1.setFotoCliente("tech_conf.png");
+
+            Evento evento2 = new Evento();
+            evento2.setId(2);
+            evento2.setNombre("Feria del Libro");
+            evento2.setEmail("ferialibro@gmail.com");
+            evento2.setFechaNacimiento(sdf.parse("20-08-2023"));
+            evento2.setCredito(10000.0);
+            evento2.setFotoCliente("feria_libro.png");
+
+            Evento evento3 = new Evento();
+            evento3.setId(3);
+            evento3.setNombre("Hackathon 2023");
+            evento3.setEmail("hackathon@gmail.com");
+            evento3.setFechaNacimiento(sdf.parse("10-09-2023"));
+            evento3.setCredito(20000.0);
+            evento3.setFotoCliente("hackathon.png");
+
+            Evento evento4 = new Evento();
+            evento4.setId(4);
+            evento4.setNombre("Exposición de Arte");
+            evento4.setEmail("expoarte@gmail.com");
+            evento4.setFechaNacimiento(sdf.parse("05-12-2023"));
+            evento4.setCredito(12000.0);
+            evento4.setFotoCliente("expo_arte.png");
+
+            lista.add(evento1);
+            lista.add(evento2);
+            lista.add(evento3);
+            lista.add(evento4);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Evento> buscarTodos() {
+        return lista;
+    }
+
+    @Override
+    public Evento buscarPorId(Integer idEvento) {
+        return lista.stream().filter(e -> e.getId().equals(idEvento)).findFirst().orElse(null);
+    }
+
+    @Override
+    public void guardarEvento(Evento evento) {
+        lista.add(evento); // Guarda el evento en la lista sin imagen
+    }
+
+    // Método sobrecargado para guardar un evento con una imagen
+    public void guardarEvento(Evento evento, MultipartFile file) {
+        try {
+            if (!file.isEmpty()) {
+                // Definir ruta donde se guardarán las imágenes
+                String directorio = "C:/eventosImagen/";
+
+                // Crear nombre único para la imagen
+                String nombreArchivo = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+
+                // Ruta completa donde se guardará la imagen
+                Path rutaArchivo = Paths.get(directorio + nombreArchivo);
+
+                // Crear directorio si no existe
+                Files.createDirectories(rutaArchivo.getParent());
+
+                // Guardar la imagen en la ruta
+                Files.write(rutaArchivo, file.getBytes());
+
+                // Guardar el nombre del archivo de la imagen en el objeto Evento
+                evento.setFotoCliente(nombreArchivo);
+            }
+
+            // Agregar evento a la lista
+            lista.add(evento);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al guardar la imagen", e);
+        }
+    }
+}

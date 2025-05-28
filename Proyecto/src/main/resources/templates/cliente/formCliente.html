@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<th:block th:insert="~{fragments/header :: head}"></th:block>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrar Cliente</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f4f8fb;
+	font-family: 'Segoe UI', sans-serif;
+}
+
+.panel-container {
+	max-width: 1000px;
+	margin: 30px auto;
+	background: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	padding: 30px;
+}
+
+.section-title {
+	font-size: 24px;
+	font-weight: bold;
+	color: #30638d;
+	margin-bottom: 25px;
+	text-align: center;
+}
+
+.btn-submit {
+	background-color: #30638d;
+	color: white;
+	font-weight: bold;
+	border-radius: 8px;
+	padding: 8px 20px;
+}
+
+.btn-submit:hover {
+	background-color: #245278;
+	color: white;
+}
+
+.carousel-container {
+	padding-right: 25px;
+}
+
+.carousel-caption {
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 10px;
+	padding: 10px;
+}
+</style>
+</head>
+<body>
+
+	<div th:replace="~{fragments/header :: body}"></div>
+
+	<div class="panel-container">
+		<div class="row">
+			<!-- Carrusel -->
+			<div class="col-md-6 carousel-container">
+				<div id="carouselPublicidad" class="carousel slide"
+					data-bs-ride="carousel">
+					<div class="carousel-inner">
+						<div class="carousel-item active">
+							<img src="https://i.postimg.cc/X73rvH34/Tips.png"
+								class="d-block w-100 rounded" alt="Promo 1">
+							<div class="carousel-caption">
+								<h5>Haz realidad tus sueños</h5>
+								<p>¡Únete hoy!</p>
+							</div>
+						</div>
+						<div class="carousel-item">
+							<img src="https://i.postimg.cc/fySFKH7L/ahorro.png"
+								class="d-block w-100 rounded" alt="Promo 2">
+							<div class="carousel-caption">
+								<h5>Crecemos contigo</h5>
+								<p>Forma parte de nuestra comunidad</p>
+							</div>
+						</div>
+					</div>
+					<button class="carousel-control-prev" type="button"
+						data-bs-target="#carouselPublicidad" data-bs-slide="prev">
+						<span class="carousel-control-prev-icon"></span>
+					</button>
+					<button class="carousel-control-next" type="button"
+						data-bs-target="#carouselPublicidad" data-bs-slide="next">
+						<span class="carousel-control-next-icon"></span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Formulario -->
+			<div class="col-md-6">
+				<div class="section-title">Registrar Cliente 👤</div>
+
+				<form th:action="@{/cliente/guardar}" th:object="${cliente}"
+					method="post" enctype="multipart/form-data" class="row g-3">
+					<input type="hidden" th:field="*{id}">
+
+					<div th:if="${#fields.hasErrors('*')}" class="alert alert-danger"
+						role="alert">
+						<ul>
+							<li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+						</ul>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Nombre</label> <input type="text"
+							th:field="*{nombre}" class="form-control" required>
+					</div>
+					<div class="col-md-6">
+						<label class="form-label">Apellido</label> <input type="text"
+							th:field="*{apellido}" class="form-control" required>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">CURP</label> <input type="text"
+							th:field="*{curp}" class="form-control" maxlength="18" required>
+					</div>
+					<div class="col-md-6">
+						<label class="form-label">Dirección</label> <input type="text"
+							th:field="*{direccion}" class="form-control" required>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Teléfono</label> <input type="text"
+							th:field="*{telefono}" class="form-control" required>
+					</div>
+					<div class="col-md-6">
+						<label class="form-label">Correo</label> <input type="email"
+							th:field="*{correo}" class="form-control" required>
+					</div>
+
+					<div class="col-md-12 d-flex align-items-center gap-3">
+						<label class="form-label">Foto:</label> <input type="file"
+							id="fotoCliente" name="file" class="form-control"
+							accept="image/*" onchange="previewClienteImage(event)"> <img
+							id="clienteImagePreview" src="/images/no-fotos.png"
+							class="img-thumbnail" style="max-width: 100px;"
+							alt="Foto del Cliente">
+					</div>
+
+					<div class="col-md-12">
+						<label class="form-label">Tipo de Cliente</label> <select
+							th:field="*{tipoCliente}" class="form-select" required>
+							<option value="" disabled selected>Seleccione un tipo</option>
+							<option value="socio">Socio</option>
+							<option value="no_socio">No Socio</option>
+						</select>
+					</div>
+
+					<div class="col-12 text-end">
+						<button type="submit" class="btn btn-submit">Guardar
+							Cliente</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div th:insert="~{fragments/footer}"></div>
+
+	<script>
+  function previewClienteImage(event) {
+    const input = event.target;
+    const preview = document.getElementById('clienteImagePreview');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

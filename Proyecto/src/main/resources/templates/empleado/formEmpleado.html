@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<th:block th:insert="~{fragments/header :: head}"></th:block>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Registrar Empleado</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+<style>
+body {
+	background-color: #f4f8fb;
+	font-family: 'Segoe UI', sans-serif;
+}
+
+.panel-container {
+	max-width: 1000px;
+	margin: 30px auto;
+	background: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	padding: 30px;
+}
+
+.section-title {
+	font-size: 24px;
+	font-weight: bold;
+	color: #30638d;
+	margin-bottom: 25px;
+	text-align: center;
+}
+
+.btn-submit {
+	background-color: #30638d;
+	color: white;
+	font-weight: bold;
+	border-radius: 8px;
+	padding: 8px 20px;
+}
+
+.btn-submit:hover {
+	background-color: #245278;
+	color: white;
+}
+
+.carousel-container {
+	padding-right: 25px;
+}
+
+.carousel-caption {
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 10px;
+	padding: 10px;
+}
+</style>
+</head>
+<body>
+
+	<div th:replace="~{fragments/header :: body}"></div>
+
+	<div class="panel-container">
+		<div class="row">
+			<!-- Carrusel -->
+			<div class="col-md-6 carousel-container">
+				<div id="carouselPublicidad" class="carousel slide"
+					data-bs-ride="carousel">
+					<div class="carousel-inner">
+						<div class="carousel-item active">
+							<img src="https://i.postimg.cc/X73rvH34/Tips.png"
+								class="d-block w-100 rounded" alt="Promo 1">
+							<div class="carousel-caption">
+								<h5>Haz realidad tus sueños</h5>
+								<p>¡Únete hoy!</p>
+							</div>
+						</div>
+						<div class="carousel-item">
+							<img src="https://i.postimg.cc/fySFKH7L/ahorro.png"
+								class="d-block w-100 rounded" alt="Promo 2">
+							<div class="carousel-caption">
+								<h5>Crecemos contigo</h5>
+								<p>Forma parte de nuestro equipo</p>
+							</div>
+						</div>
+					</div>
+					<button class="carousel-control-prev" type="button"
+						data-bs-target="#carouselPublicidad" data-bs-slide="prev">
+						<span class="carousel-control-prev-icon"></span>
+					</button>
+					<button class="carousel-control-next" type="button"
+						data-bs-target="#carouselPublicidad" data-bs-slide="next">
+						<span class="carousel-control-next-icon"></span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Formulario -->
+			<div class="col-md-6">
+				<div class="section-title">Registrar Empleado 💼</div>
+
+				<form th:action="@{/empleado/guardar}" th:object="${empleado}"
+					method="post" class="row g-3">
+					<input type="hidden" th:field="*{id}" />
+
+					<div class="col-md-6">
+						<label class="form-label">Nombre</label> <input type="text"
+							th:field="*{nombre}" class="form-control" required
+							placeholder="Nombre">
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Apellido</label> <input type="text"
+							th:field="*{apellido}" class="form-control" required
+							placeholder="Apellido">
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Teléfono</label> <input type="text"
+							th:field="*{telefono}" class="form-control"
+							placeholder="Teléfono">
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Correo Electrónico</label> <input
+							type="email" th:field="*{correo}" class="form-control"
+							placeholder="ejemplo@correo.com">
+					</div>
+
+					<div class="col-md-12">
+						<label class="form-label">Puesto</label> <input type="text"
+							th:field="*{puesto}" class="form-control"
+							placeholder="Ej. Cajero, Gerente">
+					</div>
+
+					<div class="col-12 text-end">
+						<button type="submit" class="btn btn-submit">Guardar
+							Empleado</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div th:insert="~{fragments/footer}"></div>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

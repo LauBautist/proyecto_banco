@@ -1,0 +1,18 @@
+package actividad3.diana.salvador.service;
+
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import actividad3.diana.salvador.model.Evento;
+
+public interface EventoService {
+
+    List<Evento> buscarTodos();
+
+    Evento buscarPorId(Integer idEvento);
+
+    void guardarEvento(Evento evento);
+
+    void guardarEvento(Evento evento, MultipartFile file); // Método sobrecargado para guardar eventos con imagen
+}

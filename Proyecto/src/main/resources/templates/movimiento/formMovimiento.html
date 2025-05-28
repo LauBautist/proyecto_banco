@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<th:block th:insert="~{fragments/header :: head}"></th:block>
+<title>Registrar Movimiento</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f4f8fb;
+	font-family: 'Segoe UI', sans-serif;
+}
+
+.panel-container {
+	max-width: 1100px;
+	margin: 30px auto;
+	background: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	padding: 30px;
+}
+
+.section-title {
+	font-size: 22px;
+	font-weight: bold;
+	color: #30638d;
+	margin-bottom: 25px;
+}
+
+.btn-submit {
+	background-color: #30638d;
+	color: white;
+	font-weight: bold;
+	border-radius: 8px;
+	padding: 8px 20px;
+}
+
+.btn-submit:hover {
+	background-color: #245278;
+	color: white;
+}
+
+.summary-box {
+	background: #eef6fa;
+	padding: 20px;
+	border-radius: 10px;
+	color: #30638d;
+	font-size: 15px;
+}
+
+.summary-box strong {
+	display: inline-block;
+	width: 130px;
+}
+
+.total-saldo {
+	font-size: 20px;
+	font-weight: bold;
+	text-align: right;
+	color: #B691C7;
+	margin-top: 10px;
+}
+
+.scrollable-table {
+	max-height: 220px;
+	overflow-y: auto;
+	border-radius: 12px;
+	border: 1px solid #dee2e6;
+	background-color: #fff;
+	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.scrollable-table::-webkit-scrollbar {
+	display: none;
+}
+
+.scrollable-table table {
+	width: 100%;
+	margin-bottom: 0;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-size: 15px;
+	color: #333;
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.scrollable-table thead th {
+	background-color: #30638d;
+	color: white;
+	text-align: center;
+	font-weight: bold;
+	position: sticky;
+	top: 0;
+	z-index: 2;
+}
+
+.scrollable-table tbody td {
+	padding: 12px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #ffffff;
+	border-bottom: 1px solid #eee;
+}
+
+.scrollable-table tbody tr:nth-child(even) td {
+	background-color: #f7f7f7;
+}
+
+.scrollable-table tbody tr:hover td {
+	background-color: #e9f5ff;
+	transition: background-color 0.3s ease;
+}
+</style>
+
+
+
+</head>
+<body>
+
+	<div th:replace="~{fragments/header :: body}"></div>
+
+	<div class="panel-container">
+
+		<div class="section-title">Registrar Movimiento 💸</div>
+
+		<form th:action="@{/movimiento/guardar}" th:object="${movimiento}"
+			method="post" class="row g-3">
+			<input type="hidden" th:field="*{id}" />
+
+
+			<!-- ALERTA DE ÉXITO -->
+			<div id="alertaExito" th:if="${mensajeExito}"
+				class="alert alert-success alert-dismissible fade show" role="alert">
+				<strong>Éxito:</strong> <span th:text="${mensajeExito}"></span>
+			</div>
+
+			<div id="alertaError" th:if="${#fields.hasErrors('monto')}"
+				class="alert alert-danger alert-dismissible fade show" role="alert">
+				<strong>Error:</strong> <span th:errors="*{monto}"></span>
+			</div>
+
+			<div id="alertaClienteInvalido"
+				class="alert alert-warning alert-dismissible fade show d-none"
+				role="alert">
+				<strong>Atención:</strong> Cliente no registrado en la lista
+			</div>
+
+			<!-- CLIENTE -->
+			<div class="col-md-6">
+				<label class="form-label">Buscar cliente</label> <input
+					list="clientesList" id="clienteInput" class="form-control"
+					placeholder="Nombre del cliente" required>
+				<datalist id="clientesList">
+					<option th:each="cliente : ${clientes}"
+						th:value="${cliente.nombre + ' ' + cliente.apellido}"
+						th:data-id="${cliente.id}"></option>
+				</datalist>
+				<input type="hidden" id="clienteIdOculto" />
+
+				<!-- Botón si el cliente no existe -->
+				<div id="botonRegistrarCliente"
+					class="mt-2 d-flex justify-content-center d-none">
+					<!--  -->
+					<a href="/cliente/crear"
+						class="btn btn-submit text-decoration-none"> ¿No está el
+						cliente? Registrar nuevo cliente </a>
+				</div>
+			</div>
+
+
+			<div class="col-md-4">
+				<label class="form-label">Cuenta</label> <select id="cuentaSelect"
+					name="cuenta.id" th:field="*{cuenta.id}" class="form-select"
+					required>
+					<option value="" disabled selected>Seleccione Cuenta</option>
+				</select>
+			</div>
+
+
+
+			<div class="col-md-2">
+				<label class="form-label">Tipo</label> <select id="tipoSelect"
+					th:field="*{tipo}" class="form-select" required>
+					<option value="Deposito">Depósito</option>
+					<option value="Retiro">Retiro</option>
+				</select>
+			</div>
+
+			<div class="col-md-2">
+				<label class="form-label">Monto</label> <input type="number"
+					id="montoInput" th:field="*{monto}" class="form-control"
+					placeholder="0.00" step="0.01" required>
+			</div>
+
+			<div class="col-md-2">
+				<label class="form-label">Fecha</label> <input type="date"
+					id="fechaInput" th:field="*{fecha}" class="form-control">
+			</div>
+
+
+			<div class="col-md-2">
+				<label class="form-label">Estado</label> <select id="estadoSelect"
+					th:field="*{estado}" class="form-select">
+					<option value="Completado">Completado</option>
+					<option value="Cancelado">Cancelado</option>
+				</select>
+			</div>
+
+
+			<div class="col-12 text-end">
+				<button id="submitBtn" type="submit" class="btn btn-submit">Agregar
+					Movimiento</button>
+			</div>
+
+
+			<hr class="my-4">
+
+			<div class="row">
+				<div class="col-md-4">
+					<div class="summary-box" th:if="${cuentaSeleccionada != null}">
+						<div>
+							<strong>Nombre:</strong> <span
+								th:text="${cuentaSeleccionada.cliente.nombre}">Nombre</span>
+						</div>
+						<div>
+							<strong>Teléfono:</strong> <span
+								th:text="${cuentaSeleccionada.cliente.telefono}">Tel</span>
+						</div>
+						<div>
+							<strong>Dirección:</strong> <span
+								th:text="${cuentaSeleccionada.cliente.direccion}">Dir</span>
+						</div>
+						<div>
+							<strong>Tipo Cuenta:</strong> <span
+								th:text="${cuentaSeleccionada.tipoCuenta}">Tipo</span>
+						</div>
+						<div>
+							<strong>Saldo:</strong> $<span
+								th:text="${cuentaSeleccionada.saldo}">0.00</span> MXN
+						</div>
+					</div>
+
+				</div>
+
+				<div class="col-md-8">
+					<div class="scrollable-table">
+						<table class="table table-bordered mt-3">
+							<thead>
+								<tr>
+									<th>Cuenta</th>
+									<th>Fecha</th>
+									<th>Tipo</th>
+									<th>Monto</th>
+									<th>Empleado</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="mov : ${movimientosCuenta}">
+									<td th:text="${mov.cuenta.numeroCuenta}">123456</td>
+									<td th:text="${mov.fecha}">2025-04-20</td>
+									<td th:text="${mov.tipo}">Deposito</td>
+									<td>$ <span th:text="${mov.monto}">1000.00</span> MXN
+									</td>
+									<td
+										th:text="${mov.registradoPor != null ? mov.registradoPor.nombre + ' ' + mov.registradoPor.apellido : mov.usuario.username}">Registrado
+										por</td>
+
+
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="total-saldo">
+						SALDO ACTUAL: $ <span th:text="${saldoTotal}">0.00</span> MXN
+					</div>
+				</div>
+
+			</div>
+	</div>
+	</div>
+
+	<div th:insert="~{fragments/footer}"></div>
+
+	<script>
+  // Ocultar alertas después de 4 segundos
+  setTimeout(() => {
+    const alertaExito = document.getElementById('alertaExito');
+    const alertaError = document.getElementById('alertaError');
+
+    if (alertaExito) {
+      alertaExito.classList.remove('show');
+      alertaExito.classList.add('fade');
+      alertaExito.style.display = 'none';
+    }
+
+    if (alertaError) {
+      alertaError.classList.remove('show');
+      alertaError.classList.add('fade');
+      alertaError.style.display = 'none';
+    }
+  }, 4000);
+</script>
+
+	<script>
+	document.getElementById('clienteInput').addEventListener('change', function () {
+    const nombreBuscado = this.value;
+    const opciones = document.querySelectorAll('#clientesList option');
+    let clienteId = null;
+
+    opciones.forEach(option => {
+        if (option.value === nombreBuscado) {
+            clienteId = option.getAttribute('data-id');
+        }
+    });
+
+    if (clienteId) {
+        document.getElementById('clienteIdOculto').value = clienteId;
+
+        const cuentaSelect = document.getElementById('cuentaSelect');
+        cuentaSelect.innerHTML = '<option value="" disabled selected>Cargando...</option>';
+        toggleCamposMovimiento(false); // desactiva campos por mientras
+
+        fetch(`/cuenta/cuentasPorCliente/${clienteId}`)
+            .then(response => response.json())
+            .then(data => {
+                cuentaSelect.innerHTML = '';
+
+                if (data.length === 0) {
+                    cuentaSelect.innerHTML = '<option disabled selected>No tiene cuentas</option>';
+                    toggleCamposMovimiento(false);
+                } else {
+                    const defaultOption = document.createElement('option');
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    defaultOption.textContent = 'Seleccione una cuenta';
+                    cuentaSelect.appendChild(defaultOption);
+
+                    data.forEach(cuenta => {
+                        const option = document.createElement('option');
+                        option.value = cuenta.id;
+                        option.textContent = `${cuenta.numeroCuenta} - ${cuenta.tipoCuenta}`;
+                        cuentaSelect.appendChild(option);
+                    });
+
+                    toggleCamposMovimiento(true); // activar campos
+                }
+            })
+            .catch(error => {
+                cuentaSelect.innerHTML = '<option disabled selected>Error al cargar cuentas</option>';
+                console.error('Error al cargar cuentas:', error);
+                toggleCamposMovimiento(false);
+            });
+    } if (clienteId) {
+    document.getElementById('clienteIdOculto').value = clienteId;
+
+    const cuentaSelect = document.getElementById('cuentaSelect');
+    cuentaSelect.innerHTML = '<option value="" disabled selected>Cargando...</option>';
+    toggleCamposMovimiento(false); // desactiva campos por mientras
+
+    fetch(`/cuenta/cuentasPorCliente/${clienteId}`)
+        .then(response => response.json())
+        .then(data => {
+            cuentaSelect.innerHTML = '';
+            const alertaCliente = document.getElementById('alertaClienteInvalido');
+            alertaCliente.classList.add('d-none'); // ocultar si se resolvió bien
+
+            if (data.length === 0) {
+                cuentaSelect.innerHTML = '<option disabled selected>No tiene cuentas</option>';
+                toggleCamposMovimiento(false);
+            } else {
+                const defaultOption = document.createElement('option');
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = 'Seleccione una cuenta';
+                cuentaSelect.appendChild(defaultOption);
+
+                data.forEach(cuenta => {
+                    const option = document.createElement('option');
+                    option.value = cuenta.id;
+                    option.textContent = `${cuenta.numeroCuenta} - ${cuenta.tipoCuenta}`;
+                    cuentaSelect.appendChild(option);
+                });
+
+                toggleCamposMovimiento(true);
+            }
+        })
+        .catch(error => {
+            cuentaSelect.innerHTML = '<option disabled selected>Error al cargar cuentas</option>';
+            console.error('Error al cargar cuentas:', error);
+            toggleCamposMovimiento(false);
+        });
+} else {
+    // Cliente inválido - mostrar alerta visual y botón de registrar
+    const alertaCliente = document.getElementById('alertaClienteInvalido');
+    const botonRegistrar = document.getElementById('botonRegistrarCliente');
+
+    alertaCliente.classList.remove('d-none');
+    botonRegistrar.classList.remove('d-none');
+
+    setTimeout(() => {
+        alertaCliente.classList.add('d-none');
+    }, 4000);
+
+    document.getElementById('clienteIdOculto').value = "";
+}
+    
+    
+});
+
+</script>
+
+	<script>
+function toggleCamposMovimiento(habilitar) {
+    document.getElementById("tipoSelect").disabled = !habilitar;
+    document.getElementById("montoInput").disabled = !habilitar;
+    document.getElementById("fechaInput").disabled = !habilitar;
+    document.getElementById("estadoSelect").disabled = !habilitar;
+    document.getElementById("submitBtn").disabled = !habilitar;
+}
+
+// Al cargar la página: deshabilita los campos
+document.addEventListener("DOMContentLoaded", function () {
+    toggleCamposMovimiento(false);
+});
+
+// Al seleccionar cliente
+document.getElementById('clienteSelect').addEventListener('change', function () {
+    const clienteId = this.value;
+    const cuentaSelect = document.getElementById('cuentaSelect');
+    cuentaSelect.innerHTML = '<option value="" disabled selected>Cargando...</option>';
+    toggleCamposMovimiento(false); // desactiva mientras carga
+
+    fetch(`/cuenta/cuentasPorCliente/${clienteId}`)
+        .then(response => response.json())
+        .then(data => {
+            cuentaSelect.innerHTML = ''; // limpiar opciones previas
+
+            if (data.length === 0) {
+                cuentaSelect.innerHTML = '<option disabled selected>No tiene cuentas</option>';
+                toggleCamposMovimiento(false);
+            } else {
+                const defaultOption = document.createElement('option');
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = 'Seleccione una cuenta';
+                cuentaSelect.appendChild(defaultOption);
+
+                data.forEach(cuenta => {
+                    const option = document.createElement('option');
+                    option.value = cuenta.id;
+                    option.textContent = `${cuenta.numeroCuenta} - ${cuenta.tipoCuenta}`;
+                    cuentaSelect.appendChild(option);
+                });
+
+                toggleCamposMovimiento(true); 
+            }
+        })
+        .catch(error => {
+            cuentaSelect.innerHTML = '<option disabled selected>Error al cargar cuentas</option>';
+            console.error('Error al cargar cuentas:', error);
+            toggleCamposMovimiento(false);
+        });
+});
+</script>
+
+
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

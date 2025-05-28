@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<th:block th:insert="~{fragments/header :: head}"></th:block>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrar Cuenta</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f4f8fb;
+	font-family: 'Segoe UI', sans-serif;
+}
+
+.panel-container {
+	max-width: 1000px;
+	margin: 30px auto;
+	background: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	padding: 30px;
+}
+
+.section-title {
+	font-size: 24px;
+	font-weight: bold;
+	color: #30638d;
+	margin-bottom: 25px;
+	text-align: center;
+}
+
+.btn-submit {
+	background-color: #30638d;
+	color: white;
+	font-weight: bold;
+	border-radius: 8px;
+	padding: 8px 20px;
+}
+
+.btn-submit:hover {
+	background-color: #245278;
+	color: white;
+}
+
+.carousel-container {
+	padding-right: 25px;
+}
+
+.carousel-caption {
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 10px;
+	padding: 10px;
+}
+</style>
+</head>
+<body>
+
+	<div th:replace="~{fragments/header :: body}"></div>
+
+	<div class="panel-container">
+		<div class="row">
+			<!-- Carrusel -->
+			<div class="col-md-6 carousel-container">
+				<div id="carouselPublicidad" class="carousel slide"
+					data-bs-ride="carousel">
+					<div class="carousel-inner">
+						<div class="carousel-item active">
+							<img src="https://i.postimg.cc/X73rvH34/Tips.png"
+								class="d-block w-100 rounded" alt="Ahorro">
+							<div class="carousel-caption">
+								<h5>¡Ahorra inteligentemente!</h5>
+								<p>Abre tu cuenta en minutos</p>
+							</div>
+						</div>
+						<div class="carousel-item">
+							<img src="https://i.postimg.cc/fySFKH7L/ahorro.png"
+								class="d-block w-100 rounded" alt="Promo">
+							<div class="carousel-caption">
+								<h5>Cuentas para todos</h5>
+								<p>Infantil, ahorro, inversión y más</p>
+							</div>
+						</div>
+					</div>
+					<button class="carousel-control-prev" type="button"
+						data-bs-target="#carouselPublicidad" data-bs-slide="prev">
+						<span class="carousel-control-prev-icon"></span>
+					</button>
+					<button class="carousel-control-next" type="button"
+						data-bs-target="#carouselPublicidad" data-bs-slide="next">
+						<span class="carousel-control-next-icon"></span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Formulario -->
+			<div class="col-md-6">
+				<div class="section-title">Registrar Cuenta 💳</div>
+
+				<form th:action="@{/cuenta/guardar}" th:object="${cuenta}"
+					method="post" class="row g-3">
+					<input type="hidden" th:field="*{id}">
+
+					<div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+						Por favor corrija los siguientes errores:
+						<ul>
+							<li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+						</ul>
+					</div>
+
+					<div id="alertaClienteInvalido" class="alert alert-danger mt-2"
+						style="display: none;">⚠️ Selecciona un cliente válido de la
+						lista.</div>
+
+
+					<div class="col-md-6">
+						<label class="form-label">Número de Cuenta</label> <input
+							type="text" th:field="*{numeroCuenta}" class="form-control"
+							required>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Cliente</label> <input
+							list="clientesList" id="clienteInput" class="form-control"
+							placeholder="Nombre del cliente"
+							th:value="${cuenta.cliente != null ? cuenta.cliente.nombre + ' ' + cuenta.cliente.apellido : ''}"
+							required>
+
+						<datalist id="clientesList">
+							<option th:each="cli : ${clientes}"
+								th:value="${cli.nombre + ' ' + cli.apellido}"
+								th:data-id="${cli.id}"></option>
+						</datalist>
+
+						<!-- Campo oculto para enviar el ID real -->
+						<input type="hidden" th:field="*{cliente.id}" id="clienteIdOculto" />
+
+						<!-- Botón para registrar cliente si no existe -->
+						<div class="mt-2 text-end" id="botonRegistrarCliente"
+							style="display: none;">
+							<a href="/cliente/crear"
+								class="btn btn-submit text-decoration-none"> ¿No está el
+								cliente? Registrar nuevo cliente </a>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Tipo de Cuenta</label> <select
+							th:field="*{tipoCuenta}" class="form-select" required>
+							<option value="Ahorro">Ahorro</option>
+							<option value="Inversión">Inversión</option>
+							<option value="Infantil">Infantil</option>
+						</select>
+					</div>
+
+					<div class="col-md-6">
+						<label class="form-label">Saldo Inicial</label> <input
+							type="number" th:field="*{saldo}" class="form-control"
+							step="0.01" min="0" required>
+					</div>
+
+					<div class="col-md-12">
+						<label class="form-label">Fecha de Apertura</label> <input
+							type="date" th:field="*{fechaApertura}" class="form-control">
+					</div>
+
+					<div class="col-12 text-end">
+						<button type="submit" class="btn btn-submit">Guardar
+							Cuenta</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div th:insert="~{fragments/footer}"></div>
+
+	<script>
+document.getElementById('clienteInput').addEventListener('change', function () {
+	const nombreBuscado = this.value.trim();
+	const opciones = document.querySelectorAll('#clientesList option');
+	let clienteId = null;
+
+	opciones.forEach(option => {
+		if (option.value === nombreBuscado) {
+			clienteId = option.getAttribute('data-id');
+		}
+	});
+
+	const campoOculto = document.getElementById('clienteIdOculto');
+	const alerta = document.getElementById('alertaClienteInvalido');
+	const botonRegistrar = document.getElementById('botonRegistrarCliente');
+
+	if (clienteId) {
+		campoOculto.value = clienteId;
+		alerta.style.display = 'none';
+		botonRegistrar.style.display = 'none';
+	} else {
+		campoOculto.value = "";
+		alerta.style.display = 'block';
+		botonRegistrar.style.display = 'block';
+	}
+});
+
+// Bloquear envío si el cliente no es válido, pero sin alert()
+document.querySelector("form").addEventListener("submit", function (e) {
+	const clienteId = document.getElementById('clienteIdOculto').value;
+	if (!clienteId) {
+		e.preventDefault(); // solo bloquea sin mostrar popup
+	}
+});
+</script>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

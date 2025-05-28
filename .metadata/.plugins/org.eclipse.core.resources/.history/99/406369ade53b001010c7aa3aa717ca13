@@ -1,0 +1,90 @@
+package edu.productos.diana.security;
+
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class DatabaseWebSecurity {
+
+	@Bean
+	UserDetailsManager usuarios(DataSource dataSource) {
+		JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
+		users.setUsersByUsernameQuery("SELECT username, password, estatus AS enabled FROM usuario WHERE username = ?");
+		users.setAuthoritiesByUsernameQuery("SELECT u.username, p.perfil AS authority " + "FROM usuarioperfil up "
+				+ "INNER JOIN usuario u ON u.id = up.idusuario " + "INNER JOIN perfil p ON p.id = up.idperfil "
+				+ "WHERE u.username = ?");
+		return users;
+	}
+
+	@Bean
+	public SecurityFilterChain filtrosUsuarios(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests()
+
+				// Recursos estáticos
+				.requestMatchers("/bootstrap/**", "/imagenes/**", "/tinymce/**", "/css/**").permitAll()
+
+				// Rutas públicas
+				.requestMatchers("/", "/login", "/logout").permitAll()
+
+				// CLIENTE
+				.requestMatchers("/cliente/lista", "/cliente/ver/**")
+				.hasAnyAuthority("ADMINISTRADOR", "EJECUTIVO", "SUPERVISOR")
+				.requestMatchers("/cliente/crear", "/cliente/guardar", "/cliente/editar/**")
+				.hasAnyAuthority("ADMINISTRADOR", "EJECUTIVO", "SUPERVISOR").requestMatchers("/cliente/eliminar/**")
+				.hasAnyAuthority("ADMINISTRADOR", "SUPERVISOR")
+
+				// CUENTA
+				.requestMatchers("/cuenta/cuentasPorCliente/**")
+				.hasAnyAuthority("ADMINISTRADOR", "EJECUTIVO", "SUPERVISOR", "CAJERO").requestMatchers("/cuenta/lista")
+				.hasAnyAuthority("ADMINISTRADOR", "EJECUTIVO", "SUPERVISOR")
+				.requestMatchers("/cuenta/crear", "/cuenta/guardar", "/cuenta/editar/**", "/cuenta/eliminar/**")
+				.hasAnyAuthority("ADMINISTRADOR", "EJECUTIVO", "SUPERVISOR")
+
+				// MOVIMIENTO
+				.requestMatchers("/movimiento/**").hasAnyAuthority("ADMINISTRADOR", "CAJERO", "SUPERVISOR")
+
+				// PRESTAMO
+				.requestMatchers("/prestamo/crear", "/prestamo/guardar", "/prestamo/cuotas/**")
+				.hasAnyAuthority("ADMINISTRADOR", "EJECUTIVO", "SUPERVISOR").requestMatchers("/prestamo/eliminar/**")
+				.hasAnyAuthority("ADMINISTRADOR", "SUPERVISOR")
+
+				// PAGO
+				.requestMatchers("/pago/lista", "/pago/crear", "/pago/registrar/**", "/pago/guardar", "/pago/buscar")
+				.hasAnyAuthority("ADMINISTRADOR", "CAJERO", "SUPERVISOR").requestMatchers("/pago/pdfPagados")
+				.hasAnyAuthority("ADMINISTRADOR", "SUPERVISOR")
+
+				// EMPLEADO
+				.requestMatchers("/empleado/**", "/empleado/ver/**").hasAnyAuthority("ADMINISTRADOR", "SUPERVISOR")
+
+				.requestMatchers("/empleado/crear", "/empleado/guardar", "/empleado/editar/**", "/empleado/eliminar/**")
+				.hasAuthority("ADMINISTRADOR")
+
+				// USUARIO (solo admin)
+				.requestMatchers("/usuario/**").hasAuthority("ADMINISTRADOR")
+
+				// Cualquier otra petición autenticada
+				.anyRequest().authenticated()
+
+				// Login personalizado
+				.and().formLogin().loginPage("/login").permitAll().and().logout().logoutUrl("/logout")
+				.logoutSuccessUrl("/login?logout").invalidateHttpSession(true).deleteCookies("JSESSIONID").permitAll();
+
+		return http.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+}

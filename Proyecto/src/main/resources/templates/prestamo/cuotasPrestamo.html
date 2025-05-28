@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Cuotas del Préstamo</title>
+<th:block th:insert="~{fragments/header :: head}"></th:block>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<style>
+html, body {
+	background-color: #f4f8fb;
+	font-family: 'Segoe UI', sans-serif;
+	overflow-y: scroll;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.container-cuotas {
+	background-color: white;
+	border-radius: 15px;
+	padding: 30px;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+	margin: 30px auto 80px auto;
+	max-width: 1000px;
+}
+
+h2 {
+	text-align: center;
+	color: #30638d;
+	font-weight: bold;
+	margin-bottom: 30px;
+}
+
+.info-label {
+	font-weight: bold;
+	color: #22577A;
+}
+
+.tabla-cuentas {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	min-width: 600px;
+}
+
+.tabla-cuentas th, .tabla-cuentas td {
+	padding: 15px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.tabla-cuentas th {
+	background-color: #30638d;
+	color: white;
+	font-weight: 600;
+}
+
+.tabla-cuentas tbody tr:nth-child(even) {
+	background-color: #f1f1f1;
+}
+
+.btn-custom {
+	background-color: #30638d;
+	color: white;
+	padding: 10px 25px;
+	border-radius: 10px;
+	font-weight: bold;
+	text-decoration: none;
+	border: none;
+	transition: background-color 0.3s;
+}
+
+.btn-custom:hover {
+	background-color: #264a6c;
+}
+
+.table-container {
+	max-height: 280px;
+	overflow-y: auto;
+	border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar {
+	display: none;
+}
+
+.table-container {
+	-ms-overflow-style: none; /* IE 10+ */
+	scrollbar-width: none; /* Firefox */
+}
+</style>
+</head>
+<body>
+
+	<div th:replace="~{fragments/header :: body}"></div>
+
+	<div class="container-cuotas">
+		<h2>Cuotas del Préstamo</h2>
+
+		<p>
+			<span class="info-label">Cliente:</span> <span
+				th:text="${prestamo.cliente.nombre + ' ' + prestamo.cliente.apellido}"></span>
+		</p>
+		<p>
+			<span class="info-label">Monto:</span> $<span
+				th:text="${prestamo.monto}"></span>
+		</p>
+		<p>
+			<span class="info-label">Plazo:</span> <span
+				th:text="${prestamo.plazo}"></span> meses
+		</p>
+		<p>
+			<span class="info-label">Interés:</span> <span
+				th:text="${prestamo.interes}"></span>%
+		</p>
+
+		<div class="table-container mt-4">
+			<table class="tabla-cuentas">
+				<thead>
+					<tr>
+						<th>Número de cuotas]</th>
+						<th>Capital</th>
+						<th>Interés</th>
+						<th>Total Cuota</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="cuota : ${cuotas}">
+						<td th:text="${cuota.numero}"></td>
+						<td>$<span th:text="${cuota.capital}"></span></td>
+						<td>$<span th:text="${cuota.interes}"></span></td>
+						<td>$<span th:text="${cuota.total}"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="text-end mt-4">
+			<a href="/prestamo/crear" class="btn-custom"> <i
+				class="fas fa-arrow-left"></i> Volver a Préstamos
+			</a>
+		</div>
+	</div>
+
+	<div th:insert="~{fragments/footer}"></div>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<th:block th:insert="~{fragments/header :: head}"></th:block>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publicidad | Caja Popular</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+	rel="stylesheet">
+
+<style>
+html, body {
+	background-color: #f4f8fb;
+	font-family: 'Segoe UI', sans-serif;
+	overflow-y: scroll;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+	display: none;
+}
+
+.carousel-img {
+	width: 100%;
+	height: 600px;
+	object-fit: contain;
+	background-color: #ffffff;
+	padding: 30px;
+}
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+	background-color: #30638d;
+	background-size: 50% 50%;
+	border-radius: 50%;
+	padding: 10px;
+}
+
+.icon-circle {
+	width: 60px;
+	height: 60px;
+	background-color: #30638d;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.icon-circle i {
+	color: white;
+	font-size: 1.5rem;
+}
+</style>
+</head>
+<body>
+
+	<div th:replace="~{fragments/header :: body}"></div>
+
+	<div class="container-fluid px-0 mb-5">
+		<div id="carruselCaja" class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+				<div class="carousel-item active">
+					<img src="https://i.postimg.cc/6Q7z0PdZ/imagen-Uno.png"
+						class="d-block w-100 carousel-img" alt="Tips">
+				</div>
+				<div class="carousel-item">
+					<img src="https://i.postimg.cc/SR4rmNHL/imagen-Dos.png"
+						class="d-block w-100 carousel-img" alt="Ahorro">
+				</div>
+				<div class="carousel-item">
+					<img src="https://i.postimg.cc/8Cq4nbH0/Imagen-Tres.png"
+						class="d-block w-100 carousel-img" alt="Familia">
+				</div>
+				<div class="carousel-item">
+					<img src="https://i.postimg.cc/FR3ptJCs/Imagen-Cuatro.png"
+						class="d-block w-100 carousel-img" alt="Familia">
+				</div>
+			</div>
+			<button class="carousel-control-prev" type="button"
+				data-bs-target="#carruselCaja" data-bs-slide="prev">
+				<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			</button>
+			<button class="carousel-control-next" type="button"
+				data-bs-target="#carruselCaja" data-bs-slide="next">
+				<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			</button>
+		</div>
+	</div>
+
+	<!-- Íconos temáticos -->
+	<div class="container text-center my-5">
+		<div class="row justify-content-center gy-4">
+			<div class="col-6 col-md-2">
+				<div class="icon-circle mx-auto">
+					<i class="fas fa-piggy-bank"></i>
+				</div>
+				<p class="mt-2">Ahorros</p>
+			</div>
+			<div class="col-6 col-md-2">
+				<div class="icon-circle mx-auto">
+					<i class="fas fa-chart-line"></i>
+				</div>
+				<p class="mt-2">Inversiones</p>
+			</div>
+			<div class="col-6 col-md-2">
+				<div class="icon-circle mx-auto">
+					<i class="fas fa-hand-holding-usd"></i>
+				</div>
+				<p class="mt-2">Préstamos</p>
+			</div>
+			<div class="col-6 col-md-2">
+				<div class="icon-circle mx-auto">
+					<i class="fas fa-wallet"></i>
+				</div>
+				<p class="mt-2">Cuentas</p>
+			</div>
+			<div class="col-6 col-md-2">
+				<div class="icon-circle mx-auto">
+					<i class="fas fa-plane-departure"></i>
+				</div>
+				<p class="mt-2">Viajes</p>
+			</div>
+			<div class="col-6 col-md-2">
+				<div class="icon-circle mx-auto">
+					<i class="fas fa-graduation-cap"></i>
+				</div>
+				<p class="mt-2">Educación</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Cards principales -->
+	<div class="container mt-5 mb-5 pb-4">
+		<div class="row g-4 justify-content-center">
+
+			<!-- Card 1 -->
+			<div class="col-md-4">
+				<div class="card h-100 border-0 shadow-sm">
+					<img src="https://i.postimg.cc/dV3BB0d3/Ahorrar.png"
+						class="card-img-top" alt="Caja Digital">
+					<div class="card-body">
+						<h5 class="card-title">Tu experiencia con Caja Digital</h5>
+						<ul class="list-unstyled ms-3 mt-3">
+							<li>✔ Ahorros en línea</li>
+							<li>✔ Control de tus ahorros</li>
+							<li>✔ Seguridad en tus movimientos</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!-- Card 2 -->
+			<div class="col-md-4">
+				<div class="card h-100 border-0 shadow-sm">
+					<img src="https://i.postimg.cc/bwSnrSkx/Inversion.png"
+						class="card-img-top" alt="Niños ahorrando">
+					<div class="card-body">
+						<h5 class="card-title">¿Por qué es importante ahorrar para
+							tus hijos?</h5>
+						<p class="card-text">Ahorrar para tus hijos les brinda
+							seguridad financiera, oportunidades educativas y una base sólida
+							para su futuro. Con nuestra Cuenta Infantil, puedes empezar desde
+							hoy a construir ese respaldo que marcará la diferencia mañana.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Card 3 -->
+			<div class="col-md-4">
+				<div class="card h-100 border-0 shadow-sm">
+					<img src="https://i.postimg.cc/Wp9q7w7m/Metas.png"
+						class="card-img-top" alt="Metas financieras">
+					<div class="card-body">
+						<h5 class="card-title">Establece tus metas financieras</h5>
+						<p class="card-text">¿Viaje, estudios o un fondo de
+							emergencia? Abre apartados para cada meta y ve tu progreso con
+							claridad.</p>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div th:insert="~{fragments/footer}"></div>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

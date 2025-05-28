@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>Gestión de Caja Popular</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+.navbar-custom {
+	background-color: #30638d;
+	padding: 15px 20px;
+}
+
+.navbar-custom .nav-link {
+	color: white;
+	font-weight: bold;
+	font-size: 0.9rem;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	text-decoration: none;
+}
+
+.navbar-custom .nav-link:hover {
+	color: #cce6ff;
+}
+
+.user-info {
+	color: white;
+	font-size: 0.85rem;
+	padding-top: 5px;
+	padding-left: 20px;
+}
+
+.navbar-brand {
+	font-size: 1.4rem;
+}
+
+.nav-menu-container {
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+	margin-top: 10px;
+	padding-top: 10px;
+}
+
+@media ( max-width : 768px) {
+	.user-info {
+		text-align: center;
+		padding: 10px 0;
+	}
+}
+</style>
+</head>
+
+<body th:fragment="body">
+	<header>
+		<nav class="navbar navbar-expand-lg navbar-custom flex-column">
+			<div
+				class="container-fluid w-100 d-flex justify-content-between align-items-center">
+				<div
+					class="navbar-brand fw-bold text-white d-flex align-items-center gap-2">
+					<i class="fas fa-piggy-bank fa-2x"></i> Caja Popular
+				</div>
+
+				<div class="text-white text-end" sec:authorize="isAuthenticated()">
+					<strong>Usuario:</strong> <span sec:authentication="name"></span> |
+					<strong>Rol:</strong> <span
+						sec:authentication="principal.authorities"></span>
+				</div>
+			</div>
+
+			<div class="container-fluid nav-menu-container">
+				<ul class="navbar-nav d-flex flex-wrap justify-content-center gap-3">
+					<li class="nav-item"><a class="nav-link" th:href="@{/}"><i
+							class="fas fa-house"></i> Inicio</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/cliente/crear}"><i class="fas fa-users"></i>
+							Clientes</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/cliente/lista}"><i class="fas fa-list"></i> Lista
+							clientes</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/empleado/crear}"><i class="fas fa-user-plus"></i>
+							+ Empleado</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/empleado/lista}"><i class="fas fa-users-cog"></i>
+							Lista empleados</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/cuenta/crear}"><i class="fas fa-wallet"></i>
+							Cuentas</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/cuenta/lista}"><i class="fas fa-folder-open"></i>
+							Lista cuentas</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/movimiento/crear}"><i class="fas fa-exchange-alt"></i>
+							Movimientos</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/prestamo/crear}"><i
+							class="fas fa-hand-holding-usd"></i> Préstamos</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/pago/crear}"><i class="fas fa-cash-register"></i>
+							Pagos</a></li>
+					<li class="nav-item" sec:authorize="hasAuthority('ADMINISTRADOR')">
+						<a class="nav-link" th:href="@{/usuario/lista}"><i
+							class="fas fa-user-shield"></i> Usuarios</a>
+					</li>
+					<li class="nav-item" sec:authorize="isAuthenticated()"><a
+						class="nav-link" th:href="@{/logout}"><i
+							class="fas fa-right-from-bracket"></i> Cerrar sesión</a></li>
+					<li class="nav-item" sec:authorize="!isAuthenticated()"><a
+						class="nav-link" th:href="@{/login}"><i
+							class="fas fa-right-to-bracket"></i> Ingresar</a></li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+</body>
+</html>

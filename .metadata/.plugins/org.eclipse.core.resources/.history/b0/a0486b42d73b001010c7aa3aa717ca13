@@ -1,0 +1,203 @@
+package edu.productos.diana.controller;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.core.io.UrlResource;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
+
+import edu.productos.diana.model.Cliente;
+import edu.productos.diana.model.Cuenta;
+import edu.productos.diana.service.ClienteService;
+import edu.productos.diana.service.CuentaService;
+
+@Controller
+@RequestMapping("/cliente")
+public class ClienteController {
+
+	@Autowired
+	private ClienteService clienteService;
+
+	@Autowired
+	private CuentaService cuentaService;
+
+	// Convertidor de String a Date para campos tipo fecha
+	@InitBinder
+	public void initBinder(WebDataBinder webDataBinder) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
+	}
+
+	// Mostrar lista de clientes
+	@GetMapping("/lista")
+	public String mostrarLista(Model model) {
+		List<Cliente> clientes = clienteService.buscarTodos();
+		model.addAttribute("clientes", clientes);
+		return "cliente/listaClientes";
+	}
+
+	// Mostrar formulario de registro de cliente
+	@GetMapping("/crear")
+	public String mostrarFormulario(Model model) {
+		model.addAttribute("cliente", new Cliente());
+		return "cliente/formCliente";
+	}
+
+	// Guardar registro de cliente
+	@PostMapping("/guardar")
+	public String guardarCliente(@ModelAttribute("cliente") Cliente cliente, @RequestParam("file") MultipartFile file,
+			BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+
+		if (result.hasErrors()) {
+			for (ObjectError error : result.getAllErrors()) {
+				System.out.println("Ocurrió un error: " + error.getDefaultMessage());
+			}
+			return "cliente/formCliente";
+		}
+
+		// Subida de imagen
+		if (!file.isEmpty()) {
+			String rutaDirectorio = "/app/imagenesProyecto/";
+			String nombreArchivo = file.getOriginalFilename();
+			File archivoDestino = new File(rutaDirectorio + nombreArchivo);
+
+			try {
+				File directorio = new File(rutaDirectorio);
+				if (!directorio.exists()) {
+					directorio.mkdirs();
+				}
+
+				if (!archivoDestino.exists()) {
+					file.transferTo(archivoDestino);
+					System.out.println("Imagen guardada: " + nombreArchivo);
+				} else {
+					System.out.println("La imagen ya existía, no se volvió a guardar.");
+				}
+
+				cliente.setFotoCliente(nombreArchivo);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				redirectAttributes.addFlashAttribute("mensajeError", "Error al guardar la imagen.");
+				return "redirect:/cliente/crear";
+			}
+		}
+
+		// Establecer tipoCliente por defecto si no se seleccionó
+		if (cliente.getTipoCliente() == null) {
+			cliente.setEstadoCliente(Cliente.EstadoCliente.activo);
+		}
+
+		// Guardar el cliente, controlando posible duplicado de CURP
+		try {
+			clienteService.guardarCliente(cliente);
+			redirectAttributes.addFlashAttribute("mensajeExito", "Cliente guardado con éxito");
+			return "redirect:/cliente/lista";
+
+		} catch (DataIntegrityViolationException e) {
+			System.out.println("Error: CURP duplicado o integridad violada.");
+			result.reject("curpDuplicado", "Ya existe un cliente con este CURP.");
+			model.addAttribute("cliente", cliente); // Mantener datos del formulario
+			return "cliente/formCliente";
+		}
+	}
+
+	// Eliminar un cliente
+	@GetMapping("/eliminar/{id}")
+	public String eliminarCliente(@PathVariable("id") int idCliente, RedirectAttributes redirectAttributes) {
+		try {
+			List<Cuenta> cuentasCliente = cuentaService.buscarPorIdCliente(idCliente);
+
+			if (!cuentasCliente.isEmpty()) {
+				System.out.println("No se eliminó el cliente con ID " + idCliente + " porque tiene "
+						+ cuentasCliente.size() + " cuenta(s) asociada(s).");
+				redirectAttributes.addFlashAttribute("mensajeError",
+						"No se puede eliminar el cliente porque tiene cuentas asociadas.");
+			} else {
+				clienteService.eliminarCliente(idCliente);
+				System.out.println("Cliente con ID " + idCliente + " eliminado correctamente.");
+				redirectAttributes.addFlashAttribute("mensajeExito", "Cliente eliminado correctamente.");
+			}
+		} catch (Exception e) {
+			System.out.println("Error al intentar eliminar el cliente con ID " + idCliente + ": " + e.getMessage());
+			redirectAttributes.addFlashAttribute("mensajeError", "Error al intentar eliminar el cliente.");
+		}
+		return "redirect:/cliente/lista";
+	}
+
+	// Editar un cliente
+	@GetMapping("/editar/{id}")
+	public String editarCliente(@PathVariable("id") int idCliente, Model model) {
+		Cliente cliente = clienteService.buscarPorId(idCliente);
+
+		if (cliente == null) {
+			return "redirect:/cliente/lista";
+		}
+
+		model.addAttribute("cliente", cliente);
+		return "cliente/formCliente"; // tu formulario se llama así
+	}
+
+	@GetMapping("/ver/{id}")
+	public String verDetalleCliente(@PathVariable("id") int idCliente, Model model) {
+		Cliente cliente = clienteService.buscarPorId(idCliente);
+
+		if (cliente == null) {
+			model.addAttribute("mensajeError", "Cliente no encontrado.");
+			return "error"; // Puedes personalizar esta vista de error si deseas
+		}
+
+		// Imprime en consola para depuración
+		System.out.println("Detalles del Cliente: " + cliente);
+
+		model.addAttribute("cliente", cliente);
+		return "cliente/detalles"; // Crea esta vista con el diseño que desees
+	}
+	
+	@GetMapping("/imagenes/{nombreImagen}")
+	public ResponseEntity<Resource> mostrarImagen(@PathVariable String nombreImagen) {
+	    try {
+	        Path ruta = Paths.get("/app/imagenesProyecto").resolve(nombreImagen).normalize();
+	        Resource recurso = new UrlResource(ruta.toUri());
+
+	        if (recurso.exists() && recurso.isReadable()) {
+	            return ResponseEntity.ok()
+	                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + recurso.getFilename() + "\"")
+	                    .body(recurso);
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    } catch (MalformedURLException e) {
+	        return ResponseEntity.badRequest().build();
+	    }
+	}
+
+
+}
